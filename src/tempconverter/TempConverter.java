@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 castellir
+ * Copyright (C) 2018 Ryan Castelli
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,84 +16,121 @@
  */
 package tempconverter;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.FlowLayout;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
 
 /**
+ * Simple temperature converter between Fahrenheit and Celsius.
  *
- * @author castellir
+ * @author NTropy
+ * @version 10/11/2018
  */
-public class TempConverter {
+final class TempConverter {
 
-    private JButton convert;
-    private double temp;
-    
-    public String display = "";
-    
-    public static JTextField textInput;
-    public static JTextField textOutput;
-    
-    public JButton convButton = new JButton("Convert");
-    
-    public static void main(String[] args) {
+    /**
+     * Variables for conversion between standards. TEMP_DIFF the value
+     * subtracted from or added to temperature to scale TEMP_FRAC the conversion
+     * ratio
+     */
+    private static final double TEMP_DIFF = 32, TEMP_FRAC = 9. / 5.;
+
+    /**
+     * Length of input fields.
+     */
+    private static final int FIELD_LEN = 15;
+
+    /**
+     * Width and length for GUI Window.
+     */
+    private static final int SCREEN_W = 300, SCREEN_H = 200;
+
+    /**
+     * IO fields.
+     */
+    private static JTextField textInput, textOutput;
+
+    /**
+     * Utility class.
+     */
+    private TempConverter() {
+    }
+
+    /**
+     * Initialize JFrame values.
+     *
+     * @param args command-line arguments; unused.
+     */
+    public static void main(final String[] args) {
         JFrame panel = new JFrame("Temperature Converter");
-        
-        panel.setSize(300,200);
-        
+
+        panel.setSize(SCREEN_W, SCREEN_H);
+
         panel.setLocationRelativeTo(null);
-        
+
         panel.getContentPane().setLayout(new FlowLayout());
-        
-        textInput = new JTextField("Input Here", 15);
-        textOutput = new JTextField(15);
+
+        textInput = new JTextField("", FIELD_LEN);
+
+        textOutput = new JTextField(FIELD_LEN);
         textOutput.setEditable(false);
-        
+
         JButton farButton = new JButton("To Fahrenheit");
         JButton celButton = new JButton("To Celsius");
-        
+
         panel.add(textInput);
         panel.add(farButton);
         panel.add(celButton);
         panel.add(textOutput);
-        
-        farButton.addActionListener(new FarListen());
-        celButton.addActionListener(new CelListen());
-        
-        
+
+        farButton.addActionListener(new Handler());
+        celButton.addActionListener(new Handler());
+
         panel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         panel.setVisible(true);
     }
-    
-    public static double toCel(double x) {
-        x = (x-32) * 5/9;
-        return x;
+
+    /**
+     * Convert to Celsius.
+     *
+     * @param x temperature to convert
+     * @return temperature in Celsius
+     */
+    private static double toCel(final double x) {
+        return (x - TEMP_DIFF) * 1 / TEMP_FRAC;
     }
-    
-    public static double toFar(double x) {
-        x = x*(9/5) + 32;
-        return x;
+
+    /**
+     * Convert to Fahrenheit.
+     *
+     * @param x temperature to convert
+     * @return temperature in Fahrenheit
+     */
+    private static double toFar(final double x) {
+        return x * TEMP_FRAC + TEMP_DIFF;
     }
-    
-    static class FarListen implements ActionListener {
+
+    /**
+     * Listens for conversion to Fahrenheit.
+     */
+    static final class Handler implements ActionListener {
+
         @Override
-        public void actionPerformed(ActionEvent e) {
-            double operand = Double.valueOf(textInput.getText());
-            
-            textOutput.setText(Double.toString(toFar(operand)));
-                
-            textInput.setText("");
-        }
-    }
-    
-    static class CelListen implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            double operand = Double.valueOf(textInput.getText());
-            
-            textOutput.setText(Double.toString(toCel(operand)));
-            
-            textInput.setText("");
+        public void actionPerformed(final ActionEvent e) {
+            if (e.getActionCommand().equals("To Fahrenheit")) {
+                textOutput.setText(Double.toString(toFar(
+                        Double.valueOf(textInput.getText()))));
+                textInput.setText("");
+            } else if (e.getActionCommand().equals("To Celsius")) {
+                textOutput.setText(Double.toString(toCel(
+                        Double.valueOf(textInput.getText()))));
+                textInput.setText("");
+            }
         }
     }
 }
